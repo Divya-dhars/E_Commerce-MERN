@@ -5,7 +5,6 @@ import Brands from './components/brands.js';
 import Category from './components/categories.js';
 import Login from './components/login.js';
 import Cart from './components/cart.js';
-import ProductDetails from './components/description.js';
 import Admin from './components/Admin.js';
 
 function App() {
@@ -17,7 +16,6 @@ function App() {
       <Route path='/login' element={<Login/>}></Route>
       <Route path='/cart' element={<Cart/>}></Route>
       <Route path='/admin' element={<Admin/>}></Route>
-      {/* <Route path="/product/:id" component={ProductDetails} /> */}
     </Routes>
   );
 }
