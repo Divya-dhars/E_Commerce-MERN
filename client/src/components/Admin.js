@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/Admin.css';
 
@@ -12,10 +12,32 @@ function App() {
   const [productNameUpdate, setProductNameUpdate] = useState('');
   const [brandNameUpdate, setBrandNameUpdate] = useState('');
   const [priceUpdate, setPriceUpdate] = useState('');
+  const [fetchedImageUrl, setFetchedImageUrl] = useState('');
   const [productNameDelete, setProductNameDelete] = useState('');
   const [brandNameDelete, setBrandNameDelete] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [mode, setMode] = useState('add'); // Default mode is 'add'
+  const [mode, setMode] = useState('add');
+
+  useEffect(() => {
+  if (mode === 'update' || mode === 'delete') {
+    fetchImage();
+  }
+});
+
+const fetchImage = async () => {
+  try {
+    const productResponse = await axios.get(`http://localhost:3001/api/Product/${productNameUpdate}/${brandNameUpdate}`);
+    const productData = productResponse.data;
+    if (productData && productData.images) {
+      setFetchedImageUrl(productData.images);
+    } else {
+      setFetchedImageUrl('');
+    }
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    setFetchedImageUrl('');
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,35 +53,54 @@ function App() {
         formData.append('image', imageAdd);
 
         response = await axios.post('http://localhost:3001/api/Product', formData);
-      } else if (mode === 'update') {
+      } 
+      else if (mode === 'update') {
         const productResponse = await axios.get(`http://localhost:3001/api/Product/${productNameUpdate}/${brandNameUpdate}`);
-        const productId = productResponse.data.id;
-        console.log('Product ID:', productId); 
-        response = await axios.put(`http://localhost:3001/api/Product/${productId}`,priceUpdate);
-      } else if (mode === 'delete') {
-        response = await axios.delete(`http://localhost:3001/api/Product/${productNameDelete}/${brandNameDelete}`);
+        const productData = productResponse.data;
+        if (productData && productData._id) {
+          const productId = productData._id;
+          console.log(productId);
+          response = await axios.put(`http://localhost:3001/api/Product/${productId}`, { price: priceUpdate });
+        } else {
+          response = { status: 404 };
+        }
+      } 
+      else if (mode === 'delete') {
+        const productResponse = await axios.get(`http://localhost:3001/api/Product/${productNameUpdate}/${brandNameUpdate}`);
+        const productData = productResponse.data;
+        if (productData && productData._id) {
+          const productId = productData._id;
+          console.log(productId);
+          response = await axios.delete(`http://localhost:3001/api/Product/${productId}`);
+        } else {
+          response = { status: 404 };
+        }
       }
 
       console.log(response.data);
       if (response.status === 200 || response.status === 201 || response.status === 204) {
         setSuccessMessage(`Product ${mode === 'add' ? 'added' : mode === 'update' ? 'updated' : 'deleted'} successfully`);
-      }else{
-        setSuccessMessage(`Product ${mode === 'add' ? 'insertion' : mode === 'updation' ? 'updated' : 'deletion'} failed`);
+      } else {
+        setSuccessMessage(`Product ${mode === 'add' ? 'insertion' : mode === 'update' ? 'updation' : 'deletion'} failed`);
       }
-      setProductNameAdd('');
-      setBrandNameAdd('');
-      setPriceAdd('');
-      setRatingsAdd('');
-      setImageAdd(null);
-      setImageUrlAdd('');
-      setProductNameUpdate('');
-      setBrandNameUpdate('');
-      setPriceUpdate('');
-      setProductNameDelete('');
-      setBrandNameDelete('');
+      resetFormFields();
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+
+  const resetFormFields = () => {
+    setProductNameAdd('');
+    setBrandNameAdd('');
+    setPriceAdd('');
+    setRatingsAdd('');
+    setImageAdd(null);
+    setImageUrlAdd('');
+    setProductNameUpdate('');
+    setBrandNameUpdate('');
+    setPriceUpdate('');
+    setProductNameDelete('');
+    setBrandNameDelete('');
   };
 
   const handleImageChange = (e) => {
@@ -86,20 +127,27 @@ function App() {
       </div>
       <div className="admin-container">
         <div className="image-container">
-          {mode === 'add' && !imageUrlAdd && (
-            <label htmlFor="imageInput">
-              Choose Image:
-            </label>
+          {mode === 'add' && !imageUrlAdd ? (
+            <label htmlFor="imageInput">Choose Image:</label>
+          ) : (
+            mode === 'update' || mode === 'delete' ? (
+              fetchedImageUrl ? (
+                <img src={require(`../../src/uploads/${fetchedImageUrl}`)} alt="Fetched" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+              ) : (
+                <p>No product found</p>
+              )
+            ) : (
+              <img src={imageUrlAdd} alt="Selected" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+            )
           )}
-          <input
-            id="imageInput"
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            required
-          />
-          {imageUrlAdd && (
-            <img src={imageUrlAdd} alt="Selected" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+          {mode === 'add' && !imageUrlAdd && (
+            <input
+              id="imageInput"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              required
+            />
           )}
         </div>
 

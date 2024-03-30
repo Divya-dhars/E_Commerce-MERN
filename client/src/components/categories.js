@@ -1,7 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import Nav from '../components/nav.js';
 import '../styles/categories.css';
-import Cart from '../components/cart.js';
 import ProductDetails from '../components/description.js'
 import { Link} from 'react-router-dom';
 import earthm1 from '../assets/earth-m1.png';
@@ -99,6 +98,7 @@ function Category() {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedBrand, setSelectedBrand] = useState(null);
     const [cart, setCart] = useState([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const categories = ["Skin Care", "Hair Care", "Makeup"];
     const [selectedProduct, setSelectedProduct] = useState(null);
     
@@ -185,7 +185,7 @@ function Category() {
     };
     useEffect(() => {
         setSelectedCategory(categories[0]); 
-    }, []);
+    }, [categories]);
     const handleCategoryClick = (category) => {
         setSelectedCategory(category);
         setSelectedBrand(null);

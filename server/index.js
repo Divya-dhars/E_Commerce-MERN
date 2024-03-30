@@ -78,29 +78,30 @@ app.post('/api/Product', upload.single('image'), async (req, res) => {
     }
 });
 
-app.get('api/Product/:productName/:brandName',async (req,res)=>{
-  const {productName,brandName}=req.params;
-  try{
-  const response=await Product.findOne(
-    {productName:productName},
-    {brandName:brandName},
-  )
-  res.json(response);
-  }catch(error){
+app.get('/api/Product/:productName/:brandName', async (req, res) => {
+  const { productName, brandName } = req.params;
+  try {
+    const response = await Product.findOne({
+      productName: productName,
+      brandName: brandName
+    });
+    res.json(response);
+  } catch (error) {
     console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-})
+});
+
 app.put('/api/Product/:id', async (req, res) => {
-    const{ id } = req.params;
+    const { id } = req.params;
     const { price } = req.body;
 
     try {
         const updatedProduct = await Product.findByIdAndUpdate(
-             id,
-            { price },
+            id,
+            { price: price },
             { new: true }
         );
-        res.json(updatedProduct);
 
         if (!updatedProduct) {
             return res.status(404).json({ message: "Product not found" });
@@ -109,6 +110,21 @@ app.put('/api/Product/:id', async (req, res) => {
         res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
     } catch (error) {
         console.error('Error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.delete('/api/Product/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const existingItem = await Product.findById(id);
+        if (!existingItem) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+        await existingItem.remove();
+        res.status(200).json({ message: "Product removed" });
+    } catch (e) {
+        console.error(e);
         res.status(500).json({ message: 'Server error' });
     }
 });
