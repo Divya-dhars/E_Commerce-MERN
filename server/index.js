@@ -121,7 +121,7 @@ app.delete('/api/Product/:id', async (req, res) => {
         if (!existingItem) {
             return res.status(404).json({ message: "Product not found" });
         }
-        await existingItem.remove();
+        await Product.findByIdAndDelete(id);
         res.status(200).json({ message: "Product removed" });
     } catch (e) {
         console.error(e);
