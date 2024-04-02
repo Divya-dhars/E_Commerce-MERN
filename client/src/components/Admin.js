@@ -19,12 +19,18 @@ function App() {
   const [mode, setMode] = useState('add');
 
   useEffect(() => {
-  if (mode === 'update' || mode === 'delete') {
-    fetchImage();
+  if (mode === 'update') {
+    fetchImage1();
   }
 });
+useEffect(()=>{
+  if(mode==='delete'){
+    fetchImage2();
+  }
+})
 
-const fetchImage = async () => {
+
+const fetchImage1 = async () => {
   try {
     const productResponse = await axios.get(`http://localhost:3001/api/Product/${productNameUpdate}/${brandNameUpdate}`);
     const productData = productResponse.data;
@@ -38,7 +44,20 @@ const fetchImage = async () => {
     setFetchedImageUrl('');
   }
 };
-
+const fetchImage2 = async () => {
+  try {
+    const productResponse = await axios.get(`http://localhost:3001/api/Product/${productNameDelete}/${brandNameDelete}`);
+    const productData = productResponse.data;
+    if (productData && productData.images) {
+      setFetchedImageUrl(productData.images);
+    } else {
+      setFetchedImageUrl('');
+    }
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    setFetchedImageUrl('');
+  }
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -66,10 +85,10 @@ const fetchImage = async () => {
         }
       } 
       else if (mode === 'delete') {
-        const productResponse = await axios.get(`http://localhost:3001/api/Product/${productNameUpdate}/${brandNameUpdate}`);
-        const productData = productResponse.data;
-        if (productData && productData._id) {
-          const productId = productData._id;
+        const responseData= await axios.get(`http://localhost:3001/api/Product/${productNameDelete}/${brandNameDelete}`);
+        const resData = responseData.data;
+        if (resData && resData._id) {
+          const productId = resData._id;
           console.log(productId);
           response = await axios.delete(`http://localhost:3001/api/Product/${productId}`);
         } else {
