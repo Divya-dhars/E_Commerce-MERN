@@ -5,6 +5,7 @@ import '../styles/Admin.css';
 function App() {
   const [productNameAdd, setProductNameAdd] = useState('');
   const [brandNameAdd, setBrandNameAdd] = useState('');
+  const [categoryAdd, setCategoryAdd] = useState('');
   const [priceAdd, setPriceAdd] = useState('');
   const [ratingsAdd, setRatingsAdd] = useState('');
   const [imageAdd, setImageAdd] = useState('');
@@ -69,6 +70,7 @@ const fetchImage2 = async () => {
         formData.append('brandName', brandNameAdd);
         formData.append('price', priceAdd);
         formData.append('ratings', ratingsAdd);
+        formData.append('category', categoryAdd);
         formData.append('image', imageAdd);
 
         response = await axios.post('http://localhost:3001/api/Product', formData);
@@ -112,6 +114,7 @@ const fetchImage2 = async () => {
     setProductNameAdd('');
     setBrandNameAdd('');
     setPriceAdd('');
+    setCategoryAdd('');
     setRatingsAdd('');
     setImageAdd(null);
     setImageUrlAdd('');
@@ -220,6 +223,17 @@ const fetchImage2 = async () => {
                   type="number"
                   value={ratingsAdd}
                   onChange={(e) => setRatingsAdd(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+            {mode === 'add' && (
+              <div className="form-group">
+                <label>Category:</label>
+                <input
+                  type="text"
+                  value={categoryAdd}
+                  onChange={(e) => setCategoryAdd(e.target.value)}
                   required
                 />
               </div>

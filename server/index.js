@@ -68,9 +68,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 app.post('/api/Product', upload.single('image'), async (req, res) => {
     try {
-        const { productName, brandName, price, ratings, image } = req.body;
+        const { productName, brandName, price, ratings,category, image } = req.body;
         const images = req.file.originalname;
-        const newItem = new Product({productName, brandName, price, ratings, images});
+        const newItem = new Product({productName, brandName, price, ratings,category, images});
         await newItem.save();
         res.status(201).json({status:400, message: 'Item created successfully' });
     } catch (error) {
@@ -130,17 +130,26 @@ app.delete('/api/Product/:id', async (req, res) => {
     }
 });
 
-app.get('/items/:brand/:category',async(req,res)=>{
-    const {brand,category}=req.params;
-    try{
-        const itsm=await Product.find({category:category,brand:brand});
+app.get('/items/:brand/:category', async (req, res) => {
+    const { brand, category } = req.params;
+    try {
+        let query = {};
+        if (brand !== 'undefined' && category !== 'undefined') {
+            query = { brandName: brand, category: category };
+        } else if (brand !== 'undefined') {
+            query = { brandName: brand };
+        } else if (category !== 'undefined') {
+            query = { category: category };
+        }
+
+        const items = await Product.find(query);
         res.json(items);
-    }
-    catch(error){
-        console.error("Error");
-        res.status(500).json({message:"Server error"})
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Server error" });
     }
 })
+
 
 // Add to Cart
 app.post('/api/add', async (req, res) => {
