@@ -41,14 +41,24 @@ function Category() {
     useEffect(() => {
         const fetchdata = async () => {
             try {
-                const response = await axios.get(`http://localhost:3001/items/${selectedBrand}/${selectedCategory}`);
+                let url = 'http://localhost:3001/items/';
+                if (selectedBrand && selectedCategory) {
+                    url += `${selectedBrand}/${selectedCategory}`;
+                } else if (selectedBrand) {
+                    url += `${selectedBrand}/undefined`;
+                } else if (selectedCategory) {
+                    url += `undefined/${selectedCategory}`;
+                }
+                const response = await axios.get(url);
                 setItems(response.data);
+                // console.log(response.data);
             } catch (error) {
-                console.error("Error");
+                console.error("Error:", error);
             }
         }
         fetchdata();
     }, [selectedBrand, selectedCategory]);
+
 
     const handleCategoryClick = (category) => {
         setSelectedCategory(category);
@@ -119,7 +129,7 @@ function Category() {
                         {items.map(product => (
                             <div key={product.id} className="product-item">
                                 <div className="product-card">
-                                    <img src={product.image} alt={product.name} />
+                                    <img src={require(`../../src/uploads/${product.images}`)} alt={product.name} />
                                     <div className="product-info">
                                         <div className="name">{product.name}</div>
                                         <div className="brand">{product.brand}</div>
